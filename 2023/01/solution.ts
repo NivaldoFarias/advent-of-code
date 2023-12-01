@@ -1,20 +1,19 @@
 import Bun from "bun";
 
-void partOne();
-void partTwo();
+const input = await Bun.file(`${import.meta.dir}/input.txt`).text();
 
-async function partOne() {
+partOne();
+partTwo();
+
+function partOne() {
 	console.time("partOne");
 
-	const currentDir = import.meta.dir;
-
-	const input = await Bun.file(`${currentDir}/input.txt`).text();
 	const lines = input.split("\n");
 
 	const totalSum = lines.reduce((sum, line) => {
 		const digits = line.match(/\d/gm);
 
-		if (!digits || digits.length === 0) throw new Error("oops");
+		if (!digits || digits.length === 0) throw new Error(`oops!\n${line}`);
 
 		const firstDigit = digits[0];
 		const secondDigit = digits.at(-1) ?? firstDigit;
@@ -29,8 +28,7 @@ async function partOne() {
 	console.timeEnd("partOne");
 }
 
-async function partTwo() {
-	const CURRENT_DIR = import.meta.dir;
+function partTwo() {
 	const REGEX = /\d|one|two|three|four|five|six|seven|eight|nine/;
 	const DIGITS = new Map([
 		["one", "1"],
@@ -55,13 +53,12 @@ async function partTwo() {
 
 	console.time("partTwo");
 
-	const input = await Bun.file(`${CURRENT_DIR}/input.txt`).text();
 	const lines = input.split("\n");
 
 	const totalSum = lines.reduce((sum, line) => {
 		const matches = line.match(REGEX);
 
-		if (!matches || matches.length === 0) throw new Error(line);
+		if (!matches || matches.length === 0) throw new Error(`oops!\n${line}`);
 
 		const last = {
 			key: "",

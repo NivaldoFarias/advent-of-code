@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+      /* Language Compilation Options */
+      "module": "ESNext",
+      "target": "ESNext",
+      "moduleResolution": "node",
+      "resolveJsonModule": true,
+      "allowJs": true,
+      "checkJs": true,
+      
+      /* Emit Rules */
+      "noEmit": true,
+      
+      /* Type Checking Rules */
+      "strict": true,
+      "noUncheckedIndexedAccess": true,
+      "noPropertyAccessFromIndexSignature": true,
+
+      /* Other Options */
+      "skipLibCheck": true,
+      "esModuleInterop": true,
+      "forceConsistentCasingInFileNames": true,
+      "types": [
+        "bun-types"
+      ]
+  },
+  "include": ["**/*.js", "**/*.ts", ".*.cjs"],
+  "exclude": ["node_modules"]
+}

@@ -1,5 +1,7 @@
 import Bun from "bun";
 
+const TEST_INPUT = ``;
+
 const input = await Bun.file(`${import.meta.dir}/input.txt`).text();
 
 partOne();
@@ -11,28 +13,32 @@ function partOne() {
 	console.time("partOne");
 
 	let sum = 0;
-	const lines = input.split("\n");
+	const lines = (TEST_INPUT || input).split("\n");
 
-	for (const [index, line] of lines.entries()) {
+	for (let [lineIndex, line] of lines.entries()) {
 		const numbersMatch = line.match(/\d+/g);
 
 		if (!numbersMatch) continue;
-		const previousLine = lines[index - 1];
-		const nextLine = lines[index + 1];
+
+		const previousLine = lines[lineIndex - 1];
+		const nextLine = lines[lineIndex + 1];
 
 		for (const number of numbersMatch) {
 			const startIndex = line.indexOf(number);
+
 			const previousChar = line.charAt(startIndex - 1);
 			const nextChar = line.charAt(startIndex + number.length);
 
 			if (!!previousChar && previousChar.match(SYMBOLS_REGEX)) {
 				sum += Number(number);
+				line = line.replace(number, number.replaceAll(/\d/g, "."));
 
 				continue;
 			}
 
 			if (!!nextChar && nextChar.match(SYMBOLS_REGEX)) {
 				sum += Number(number);
+				line = line.replace(number, number.replaceAll(/\d/g, "."));
 
 				continue;
 			}
@@ -45,8 +51,9 @@ function partOne() {
 
 				const prev = previousLine.slice(leftDiagonal, rightDiagonal);
 
-				if (prev.match(/[^.\d]/g)) {
+				if (prev.match(SYMBOLS_REGEX)) {
 					sum += Number(number);
+					line = line.replace(number, number.replaceAll(/\d/g, "."));
 
 					continue;
 				}
@@ -60,8 +67,9 @@ function partOne() {
 
 				const next = nextLine.slice(leftDiagonal, rightDiagonal);
 
-				if (next.match(/[^.\d]/g)) {
+				if (next.match(SYMBOLS_REGEX)) {
 					sum += Number(number);
+					line = line.replace(number, number.replaceAll(/\d/g, "."));
 
 					continue;
 				}
@@ -76,10 +84,6 @@ function partOne() {
 
 function partTwo() {
 	console.time("partTwo");
-
-	let totalSum = 0;
-
-	console.log(totalSum);
 
 	console.timeEnd("partTwo");
 }

@@ -23,6 +23,7 @@ module.exports = {
 		"no-console": "off",
 
 		// @typescript-eslint
+		"@typescript-eslint/prefer-nullish-coalescing": "off",
 		"@typescript-eslint/consistent-type-imports": [
 			"error",
 			{ prefer: "type-imports", fixStyle: "inline-type-imports" },

@@ -1,8 +1,4 @@
-/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 import Bun from "bun";
-import chalk from "chalk";
-
-const TEST_INPUT = await Bun.file(`${import.meta.dir}/input-test.txt`).text();
 
 const input = await Bun.file(`${import.meta.dir}/input.txt`).text();
 
@@ -15,14 +11,14 @@ function partOne() {
 	console.time("partOne");
 
 	let sum = 0;
-	const lines = (TEST_INPUT || input).split("\n");
+	const lines = input.split("\n");
 
-	for (let [lineIndex, line] of lines.entries()) {
+	for (let [row, line] of lines.entries()) {
 		const numbersMatch = line.match(/\d+/g);
 
 		if (!numbersMatch) continue;
-		const previousLine = lines[lineIndex - 1];
-		const nextLine = lines[lineIndex + 1];
+		const previousLine = lines[row - 1];
+		const nextLine = lines[row + 1];
 
 		for (const number of numbersMatch) {
 			const startIndex = line.indexOf(number);
@@ -70,65 +66,108 @@ function partOne() {
 }
 
 function partTwo() {
-	const DIGITS_REGEX = /\d+/g;
+	const GEAR_REGEX = /\*/g;
 
 	console.time("partTwo");
 
-	let sum = 0;
-	const lines = (TEST_INPUT || input).split("\n");
+	const lines = input.split("\n");
 
-	for (const [lineIndex, line] of lines.entries()) {
-		const gearMatch = line.match(/\*/g);
+	const gearsMap = new Map<`${number},${number}`, number[]>();
 
-		if (!gearMatch) continue;
+	for (let [row, line] of lines.entries()) {
+		const gearsMatch = line.match(GEAR_REGEX);
 
-		const previousLine = lines[lineIndex - 1];
-		const nextLine = lines[lineIndex + 1];
+		if (gearsMatch) {
+			for (const gear of gearsMatch) {
+				const gearPosition = `${row},${line.indexOf(gear)}` as const;
 
-		for (const gear of gearMatch) {
-			const startIndex = line.indexOf(gear);
+				gearsMap.set(gearPosition, []);
 
-			let prev = "";
-			let next = "";
+				line = line.replace(gear, ".");
+			}
+		}
+	}
 
+	for (let [row, line] of lines.entries()) {
+		const numbersMatch = line.match(/\d+/g);
+
+		if (!numbersMatch) continue;
+
+		const previousLine = lines[row - 1];
+		const nextLine = lines[row + 1];
+
+		for (const number of numbersMatch) {
+			const startIndex = line.indexOf(number);
+
+			let previousSubline = "";
+			let nextSubline = "";
 			const previousChar = line.charAt(startIndex - 1);
-			const nextChar = line.charAt(startIndex + gear.length);
+			const nextChar = line.charAt(startIndex + number.length);
 
 			if (previousLine) {
 				const leftDiagonal = previousLine.charAt(startIndex - 1) ? startIndex - 1 : startIndex;
-				const rightDiagonal = previousLine.charAt(startIndex + gear.length + 1)
-					? startIndex + gear.length + 1
-					: startIndex + gear.length;
+				const rightDiagonal = previousLine.charAt(startIndex + number.length + 1)
+					? startIndex + number.length + 1
+					: startIndex + number.length;
 
-				prev = previousLine.slice(leftDiagonal, rightDiagonal);
+				previousSubline = previousLine.slice(leftDiagonal, rightDiagonal);
 			}
 
 			if (nextLine) {
 				const leftDiagonal = nextLine.charAt(startIndex - 1) ? startIndex - 1 : startIndex;
-				const rightDiagonal = nextLine.charAt(startIndex + gear.length + 1)
-					? startIndex + gear.length + 1
-					: startIndex + gear.length;
+				const rightDiagonal = nextLine.charAt(startIndex + number.length + 1)
+					? startIndex + number.length + 1
+					: startIndex + number.length;
 
-				next = nextLine.slice(leftDiagonal, rightDiagonal);
+				nextSubline = nextLine.slice(leftDiagonal, rightDiagonal);
 			}
 
 			const symbolWithinReach =
-				previousChar.match(DIGITS_REGEX) ||
-				nextChar.match(DIGITS_REGEX) ||
-				prev.match(DIGITS_REGEX) ||
-				next.match(DIGITS_REGEX);
+				(!!previousChar && previousChar.match(GEAR_REGEX)) ||
+				(!!nextChar && nextChar.match(GEAR_REGEX)) ||
+				previousSubline.match(GEAR_REGEX) ||
+				nextSubline.match(GEAR_REGEX);
 
 			if (symbolWithinReach && symbolWithinReach.length > 0) {
-				console.log(
-					previousChar.match(DIGITS_REGEX),
-					nextChar.match(DIGITS_REGEX),
-					prev.match(DIGITS_REGEX),
-					next.match(DIGITS_REGEX),
-					`\n${prev || ""}\n${previousChar || ""}${gear}${nextChar}\n${next || ""}`,
-				);
+				const gearPosition = {
+					row: row,
+					column: startIndex,
+				};
+
+				if (!!previousChar && previousChar.match(GEAR_REGEX)) {
+					gearPosition.column = startIndex - 1;
+				} else if (!!nextChar && nextChar.match(GEAR_REGEX)) {
+					gearPosition.column = startIndex + number.length;
+				} else if (previousSubline.match(GEAR_REGEX) && previousLine) {
+					gearPosition.row = row - 1;
+					gearPosition.column =
+						(previousLine.charAt(startIndex - 1) ? startIndex - 1 : startIndex) +
+						previousSubline.indexOf("*");
+				} else if (nextSubline.match(GEAR_REGEX) && nextLine) {
+					gearPosition.row = row + 1;
+					gearPosition.column =
+						(nextLine.charAt(startIndex - 1) ? startIndex - 1 : startIndex) +
+						nextSubline.indexOf("*");
+				}
+
+				const gearNumbersArray = gearsMap.get(`${gearPosition.row},${gearPosition.column}`);
+
+				if (gearNumbersArray) gearNumbersArray.push(Number(number));
 			}
+
+			line = line.replace(number, number.replaceAll(/\d/g, "."));
 		}
 	}
+
+	console.log(
+		[...gearsMap.values()].reduce((sum, numbers) => {
+			if (numbers.length !== 2) return sum;
+			else if (!numbers[0]) return sum;
+			else if (!numbers[1]) return sum;
+
+			return sum + numbers[0] * numbers[1];
+		}, 0),
+	);
 
 	console.timeEnd("partTwo");
 }

@@ -20,55 +20,54 @@ function partOne() {
 
 	if (!seedsMatch) throw new Error("oops");
 
-	const seeds = seedsMatch[1].replace("\n", "").split(" ");
+	const mappedLocations = seedsMatch[1]
+		.replace("\n", "")
+		.split(" ")
+		.map((seed) => {
+			let mappedValue = Number(seed);
 
-	const seedToLocationMap = Object.fromEntries(seeds.map((seed) => [seed, Number(seed)]));
+			for (const [index, match] of xToYMapsArray.entries()) {
+				const next = xToYMapsArray.at(index + 1);
 
-	for (const [index, match] of xToYMapsArray.entries()) {
-		if (!match.groups) throw new Error("oops");
+				const currentRangesSubstring = input.slice(
+					input.indexOf(match[0]),
+					next ? input.indexOf(next[0]) : input.length,
+				);
 
-		const next = xToYMapsArray.at(index + 1);
+				const rangesMatches = currentRangesSubstring.matchAll(rangesRegex);
 
-		const currentRangesSubstring = input.slice(
-			input.indexOf(match[0]),
-			next ? input.indexOf(next[0]) : input.length,
-		);
+				const rangesGroups = [...rangesMatches]
+					.map((rangesMatch) => rangesMatch.groups)
+					.filter(Boolean);
 
-		const rangesMatches = currentRangesSubstring.matchAll(rangesRegex);
+				let minRangeToMap: (typeof rangesGroups)[number] | null = null;
 
-		const rangesGroups = [...rangesMatches]
-			.map((rangesMatch) => rangesMatch.groups)
-			.filter(Boolean);
+				for (const ranges of rangesGroups) {
+					const { sourceRangeStart, range } = ranges;
 
-		for (const seed in seedToLocationMap) {
-			let minRangeToMap: (typeof rangesGroups)[number] | null = null;
+					if (mappedValue < Number(sourceRangeStart)) continue;
+					else if (mappedValue >= Number(sourceRangeStart) + Number(range)) continue;
+					else if (
+						minRangeToMap &&
+						Number(minRangeToMap["sourceRangeStart"]) < Number(sourceRangeStart)
+					) {
+						continue;
+					}
 
-			const currentValue = seedToLocationMap[seed];
-
-			for (const ranges of rangesGroups) {
-				const { sourceRangeStart, range } = ranges;
-
-				if (currentValue < Number(sourceRangeStart)) continue;
-				else if (currentValue >= Number(sourceRangeStart) + Number(range)) continue;
-				else if (
-					minRangeToMap &&
-					Number(minRangeToMap["sourceRangeStart"]) < Number(sourceRangeStart)
-				) {
-					continue;
+					minRangeToMap = ranges;
 				}
 
-				minRangeToMap = ranges;
+				mappedValue = minRangeToMap
+					? mappedValue -
+					  (Number(minRangeToMap["sourceRangeStart"]) -
+							Number(minRangeToMap["destinationRangeStart"]))
+					: mappedValue;
 			}
 
-			seedToLocationMap[seed] = minRangeToMap
-				? currentValue -
-				  (Number(minRangeToMap["sourceRangeStart"]) -
-						Number(minRangeToMap["destinationRangeStart"]))
-				: currentValue;
-		}
-	}
+			return mappedValue;
+		});
 
-	console.log(Math.min(...Object.values(seedToLocationMap)));
+	console.log(Math.min(...mappedLocations));
 
 	console.timeEnd("partOne");
 }
@@ -76,35 +75,25 @@ function partOne() {
 function partTwo() {
 	console.time("partTwo");
 
-	const initialSeedRegex = /^seeds:\s((?:\d+[^\S])+)$/gim;
+	const seedsRangeRegex = /\d+\s\d+/gi;
 	const xToYMapsRegex = /(?:^\n(?<source>\D+)-to-(?<destination>\D+)\smap:$)+/gim;
 	const rangesRegex = /^(?<destinationRangeStart>\d+)\s(?<sourceRangeStart>\d+)\s(?<range>\d+)$/gim;
 
 	console.time("partOne");
 
-	const seedsMatch = initialSeedRegex.exec(input);
+	const seedsRangeMatch = input.split("\n")[0].matchAll(seedsRangeRegex);
 	const xToYMapsMatch = input.matchAll(xToYMapsRegex);
 	const xToYMapsArray = [...xToYMapsMatch];
 
-	if (!seedsMatch) throw new Error("oops");
+	const seeds = [...seedsRangeMatch].map((seedRange) => {
+		const [seed, range] = seedRange[0].split(" ");
 
-	const seeds = seedsMatch[1].replace("\n", "").split(" ");
+		return [Number(seed), Number(seed) + Number(range) - 1] as const;
+	});
 
-	const seedToLocationMap: Record<string, number> = {};
+	let minLocation: number | null = null;
 
-	for (const [index, seed] of seeds.entries()) {
-		if ((index + 1) % 2 === 0) continue;
-
-		const range = seeds[index + 1];
-
-		for (let i = 0; i < Number(range); i++) {
-			seedToLocationMap[String(Number(seed) + i)] = Number(seed) + i;
-		}
-	}
-
-	for (const [index, match] of xToYMapsArray.entries()) {
-		if (!match.groups) throw new Error("oops");
-
+	const categoriesRanges = xToYMapsArray.map((match, index) => {
 		const next = xToYMapsArray.at(index + 1);
 
 		const currentRangesSubstring = input.slice(
@@ -118,33 +107,46 @@ function partTwo() {
 			.map((rangesMatch) => rangesMatch.groups)
 			.filter(Boolean);
 
-		for (const [seed, currentValue] of Object.entries(seedToLocationMap)) {
-			let minRangeToMap: (typeof rangesGroups)[number] | null = null;
+		return rangesGroups;
+	});
 
-			for (const ranges of rangesGroups) {
-				const { sourceRangeStart, range } = ranges;
+	for (const [seed, range] of seeds) {
+		for (let min = seed; min < range; min++) {
+			let mappedValue = Number(min);
 
-				if (currentValue < Number(sourceRangeStart)) continue;
-				else if (currentValue >= Number(sourceRangeStart) + Number(range)) continue;
-				else if (
-					minRangeToMap &&
-					Number(minRangeToMap["sourceRangeStart"]) < Number(sourceRangeStart)
-				) {
-					continue;
+			for (const categoryRanges of categoriesRanges) {
+				let minRangeToMap: (typeof categoryRanges)[number] | null = null;
+
+				for (const ranges of categoryRanges) {
+					const { sourceRangeStart, range } = ranges;
+
+					if (mappedValue < Number(sourceRangeStart)) continue;
+					else if (mappedValue >= Number(sourceRangeStart) + Number(range)) continue;
+					else if (
+						minRangeToMap &&
+						Number(minRangeToMap["sourceRangeStart"]) < Number(sourceRangeStart)
+					) {
+						continue;
+					}
+
+					minRangeToMap = ranges;
 				}
 
-				minRangeToMap = ranges;
+				mappedValue = minRangeToMap
+					? mappedValue -
+					  (Number(minRangeToMap["sourceRangeStart"]) -
+							Number(minRangeToMap["destinationRangeStart"]))
+					: mappedValue;
 			}
 
-			seedToLocationMap[seed] = minRangeToMap
-				? currentValue -
-				  (Number(minRangeToMap["sourceRangeStart"]) -
-						Number(minRangeToMap["destinationRangeStart"]))
-				: currentValue;
+			if (minLocation && mappedValue >= minLocation) continue;
+
+			minLocation = mappedValue;
+			console.log(minLocation, mappedValue);
 		}
 	}
 
-	console.log(Math.min(...Object.values(seedToLocationMap)));
+	console.log(minLocation);
 
 	console.timeEnd("partTwo");
 }

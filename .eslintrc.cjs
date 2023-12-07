@@ -21,6 +21,7 @@ module.exports = {
 		// eslint
 		"prefer-const": "error",
 		"no-console": "off",
+		"no-mixed-spaces-and-tabs": "off",
 
 		// @typescript-eslint
 		"@typescript-eslint/prefer-nullish-coalescing": "off",

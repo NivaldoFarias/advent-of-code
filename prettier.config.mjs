@@ -1,21 +1,21 @@
 /** @type {import("prettier").Config} */
-module.exports = {
+export default {
 	semi: true,
 	tabWidth: 2,
 	useTabs: true,
 	printWidth: 100,
 	endOfLine: "lf",
 	singleQuote: false,
+	proseWrap: "always",
 	trailingComma: "all",
-	proseWrap: "preserve",
+	bracketSpacing: true,
 	arrowParens: "always",
 	quoteProps: "consistent",
-	bracketSpacing: true,
-	plugins: ["prettier-plugin-jsdoc"],
+	singleAttributePerLine: true,
 	overrides: [
 		{
-			files: ["*.d.ts", "*.json"],
-			excludeFiles: ["package.json", "package-lock.json"],
+			files: [ "*.d.ts", "*.json" ],
+			excludeFiles: [ "package.json", "package-lock.json" ],
 			options: {
 				tabWidth: 4,
 				useTabs: false,

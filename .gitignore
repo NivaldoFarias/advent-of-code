@@ -11,6 +11,7 @@
 .env
 .env*.local
 !.env.example
+.dotfiles
 
 # Build results
 dist/

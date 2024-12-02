@@ -1,68 +1,39 @@
-# --- Day 1: Trebuchet?! ---
+# --- Day 2: Red-Nosed Reports ---
 
 ## --- Part One ---
 
-Something is wrong with global snow production, and you've been selected to take a look. The Elves
-have even given you a map; on it, they've used stars to mark the top fifty locations that are likely
-to be having problems.
+Fortunately, the first location The Historians want to search isn't a long walk from the Chief Historian's office.
 
-You've been doing this long enough to know that to restore snow operations, you need to check all
-**fifty stars** by December 25th.
+While the Red-Nosed Reindeer nuclear fusion/fission plant appears to contain no sign of the Chief Historian, the engineers there run up to you as soon as they see you. Apparently, they still talk about the time Rudolph was saved through molecular synthesis from a single electron.
 
-Collect stars by solving puzzles. Two puzzles will be made available on each day in the Advent
-calendar; the second puzzle is unlocked when you complete the first. Each puzzle grants **one
-star**. Good luck!
+They're quick to add that - since you're already here - they'd really appreciate your help analyzing some unusual data from the Red-Nosed reactor. You turn to check if The Historians are waiting for you, but they seem to have already divided into groups that are currently searching every corner of the facility. You offer to help with the unusual data.
 
-You try to ask why they can't just use a [weather machine](https://adventofcode.com/2015/day/1)
-("not powerful enough") and where they're even sending you ("the sky") and why your map looks mostly
-blank ("you sure ask a lot of questions") and hang on did you just say the sky ("of course, where do
-you think snow comes from") when you realize that the Elves are already loading you into a
-[trebuchet](https://en.wikipedia.org/wiki/Trebuchet) ("please hold still, we need to strap you in").
+The unusual data (your puzzle input) consists of many reports, one report per line. Each report is a list of numbers called levels that are separated by spaces. For example:
 
-As they're making the final adjustments, they discover that their calibration document (your puzzle
-input) has been _amended_ by a very young Elf who was apparently just excited to show off her art
-skills. Consequently, the Elves are having trouble reading the values on the document.
-
-The newly-improved calibration document consists of lines of text; each line originally contained a
-specific _calibration value_ that the Elves now need to recover. On each line, the calibration value
-can be found by combining the _first digit_ and the _last digit_ (in that order) to form a single
-_two-digit number_.
-
-For example:
-
-```
-1abc2
-pqr3stu8vwx
-a1b2c3d4e5f
-treb7uchet
+```plaintext
+7 6 4 2 1
+1 2 7 8 9
+9 7 6 2 1
+1 3 2 4 5
+8 6 4 4 1
+1 3 6 7 9
 ```
 
-In this example, the calibration values of these four lines are `12`, `38`, `15`, and `77`. Adding
-these together produces `142`.
+This example data contains six reports each containing five levels.
 
-Consider your entire calibration document. _What is the sum of all of the calibration values?_
+The engineers are trying to figure out which reports are safe. The Red-Nosed reactor safety systems can only tolerate levels that are either gradually increasing or gradually decreasing. So, a report only counts as safe if both of the following are true:
 
-## --- Part Two ---
+- The levels are either all increasing or all decreasing.
+- Any two adjacent levels differ by at least one and at most three.
+In the example above, the reports can be found safe or unsafe by checking those rules:
 
-Your calculation isn't quite right. It looks like some of the digits are actually _spelled out with
-letters_: `one`, `two`, `three`, `four`, `five`, `six`, `seven`, `eight`, and `nine` also count as
-valid "digits".
+- `7 6 4 2 1`: Safe because the levels are all decreasing by 1 or 2.
+- `1 2 7 8 9`: Unsafe because 2 7 is an increase of 5.
+- `9 7 6 2 1`: Unsafe because 6 2 is a decrease of 4.
+- `1 3 2 4 5`: Unsafe because 1 3 is increasing but 3 2 is decreasing.
+- `8 6 4 4 1`: Unsafe because 4 4 is neither an increase or a decrease.
+- `1 3 6 7 9`: Safe because the levels are all increasing by 1, 2, or 3.
 
-Equipped with this new information, you now need to find the real first and last digit on each line.
-For example:
+So, in this example, 2 reports are safe.
 
-```
-two1nine
-eightwothree
-abcone2threexyz
-xtwone3four
-4nineeightseven2
-zoneight234
-7pqrstsixteen
-```
-
-two1nine eightwothree abcone2threexyz xtwone3four 4nineeightseven2 zoneight234 7pqrstsixteen In this
-example, the calibration values are `29`, `83`, `13`, `24`, `42`, `14`, and `76`. Adding these
-together produces `281`.
-
-_What is the sum of all of the calibration values?_
+Analyze the unusual data from the engineers. How many reports are safe?

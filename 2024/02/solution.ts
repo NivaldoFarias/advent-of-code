@@ -1,89 +1,161 @@
 import Bun from "bun";
 
-const input = await Bun.file(`${import.meta.dir}/input.txt`).text();
+void solve(await Bun.file(`${import.meta.dir}/input.txt`).text());
 
-partOne();
-partTwo();
+/**
+ * # --- Day 2: Red-Nosed Reports ---
+ *
+ * ## --- Part One ---
+ *
+ * Fortunately, the first location The Historians want to search isn't a long walk from the Chief
+ * Historian's office.
+ *
+ * While the Red-Nosed Reindeer nuclear fusion/fission plant appears to contain no sign of the Chief
+ * Historian, the engineers there run up to you as soon as they see you. Apparently, they still talk
+ * about the time Rudolph was saved through molecular synthesis from a single electron.
+ *
+ * They're quick to add that - since you're already here - they'd really appreciate your help
+ * analyzing some unusual data from the Red-Nosed reactor. You turn to check if The Historians are
+ * waiting for you, but they seem to have already divided into groups that are currently searching
+ * every corner of the facility. You offer to help with the unusual data.
+ *
+ * The unusual data (your puzzle input) consists of many reports, one report per line. Each report
+ * is a list of numbers called levels that are separated by spaces. For example:
+ *
+ * ```plaintext
+ * 7 6 4 2 1
+ * 1 2 7 8 9
+ * 9 7 6 2 1
+ * 1 3 2 4 5
+ * 8 6 4 4 1
+ * 1 3 6 7 9
+ * ```
+ *
+ * This example data contains six reports each containing five levels.
+ *
+ * The engineers are trying to figure out which reports are safe. The Red-Nosed reactor safety
+ * systems can only tolerate levels that are either gradually increasing or gradually decreasing.
+ * So, a report only counts as safe if both of the following are true:
+ *
+ * - The levels are either all increasing or all decreasing.
+ * - Any two adjacent levels differ by at least one and at most three. In the example above, the
+ *   reports can be found safe or unsafe by checking those rules:
+ * - `7 6 4 2 1`: Safe because the levels are all decreasing by 1 or 2.
+ * - `1 2 7 8 9`: Unsafe because 2 7 is an increase of 5.
+ * - `9 7 6 2 1`: Unsafe because 6 2 is a decrease of 4.
+ * - `1 3 2 4 5`: Unsafe because 1 3 is increasing but 3 2 is decreasing.
+ * - `8 6 4 4 1`: Unsafe because 4 4 is neither an increase or a decrease.
+ * - `1 3 6 7 9`: Safe because the levels are all increasing by 1, 2, or 3.
+ *
+ * So, in this example, 2 reports are safe.
+ *
+ * Analyze the unusual data from the engineers. How many reports are safe?
+ *
+ * ## --- Part Two ---
+ *
+ * The engineers are surprised by the low number of safe reports until they realize they forgot to
+ * tell you about the Problem Dampener.
+ *
+ * The Problem Dampener is a reactor-mounted module that lets the reactor safety systems tolerate a
+ * single bad level in what would otherwise be a safe report. It's like the bad level never
+ * happened!
+ *
+ * Now, the same rules apply as before, except if removing a single level from an unsafe report
+ * would make it safe, the report instead counts as safe.
+ *
+ * More of the above example's reports are now safe:
+ *
+ * - `7 6 4 2 1`: Safe without removing any level.
+ * - `1 2 7 8 9`: Unsafe regardless of which level is removed.
+ * - `9 7 6 2 1`: Unsafe regardless of which level is removed.
+ * - `1 3 2 4 5`: Safe by removing the second level, 3.
+ * - `8 6 4 4 1`: Safe by removing the third level, 4.
+ * - `1 3 6 7 9`: Safe without removing any level.
+ *
+ * Thanks to the Problem Dampener, 4 reports are actually safe!
+ *
+ * Update your analysis by handling situations where the Problem Dampener can remove a single level
+ * from unsafe reports. How many reports are now safe?
+ */
+function solve(input: string) {
+	void partOne(input);
+	void partTwo(input);
+}
 
-function partOne() {
+function partOne(input: string) {
 	console.time("partOne");
+
+	const diff = { min: 1, max: 3 };
 
 	const lines = input.split("\n");
 
-	const totalSum = lines.reduce((sum, line) => {
-		const digits = line.match(/\d/gm);
+	const safeReports = lines.filter((line) => {
+		const levels = line.split(" ").map(Number);
 
-		if (!digits || digits.length === 0) throw new Error(`oops!\n${line}`);
+		let increasing = true;
+		let decreasing = true;
 
-		const firstDigit = digits[0];
-		const secondDigit = digits.at(-1) ?? firstDigit;
+		for (let i = 1; i < levels.length; i++) {
+			const current = levels[i];
+			const previous = levels[i - 1];
 
-		const twoDigitNumber = `${firstDigit}${secondDigit}`;
+			if (!previous || !current) continue;
 
-		return sum + Number(twoDigitNumber);
-	}, 0);
+			if (current === previous) return false;
+			else if (current - previous > diff.max) return false;
+			else if (previous - current > diff.max) return false;
 
-	console.log(totalSum);
+			if (current > previous) decreasing = false;
+			else if (current < previous) increasing = false;
+
+			if (!increasing && !decreasing) return false;
+		}
+
+		return true;
+	});
+
+	console.log(safeReports.length);
 
 	console.timeEnd("partOne");
 }
 
-function partTwo() {
-	const REGEX = /\d|one|two|three|four|five|six|seven|eight|nine/;
-	const DIGITS = new Map([
-		["one", "1"],
-		["two", "2"],
-		["three", "3"],
-		["four", "4"],
-		["five", "5"],
-		["six", "6"],
-		["seven", "7"],
-		["eight", "8"],
-		["nine", "9"],
-		["1", "1"],
-		["2", "2"],
-		["3", "3"],
-		["4", "4"],
-		["5", "5"],
-		["6", "6"],
-		["7", "7"],
-		["8", "8"],
-		["9", "9"],
-	]);
-
+function partTwo(input: string) {
 	console.time("partTwo");
+
+	const diff = { min: 1, max: 3 };
 
 	const lines = input.split("\n");
 
-	const totalSum = lines.reduce((sum, line) => {
-		const matches = line.match(REGEX);
+	const safeReports = lines.filter((line) => {
+		const levels = line.split(" ").map(Number);
 
-		if (!matches || matches.length === 0) throw new Error(`oops!\n${line}`);
+		const possibleLevels = levels.map((_, i) => levels.filter((_, j) => i !== j));
 
-		const last = {
-			key: "",
-			index: 0,
-		};
+		return possibleLevels.some((possible) => {
+			let increasing = true;
+			let decreasing = true;
 
-		for (const key of DIGITS.keys()) {
-			const index = line.lastIndexOf(key);
+			for (let i = 1; i < possible.length; i++) {
+				const current = possible[i];
+				const previous = possible[i - 1];
 
-			if (index === -1) continue;
-			else if (last.key === key) continue;
-			else if (index < last.index) continue;
+				if (!previous || !current) continue;
 
-			last.key = key;
-			last.index = index;
-		}
+				if (current === previous) return false;
+				else if (current - previous > diff.max) return false;
+				else if (previous - current > diff.max) return false;
 
-		const firstDigit = DIGITS.get(matches[0]) ?? matches[0];
-		const lastDigit = DIGITS.get(last.key !== "" ? last.key : firstDigit);
-		const twoDigitNumber = `${firstDigit}${lastDigit}`;
+				if (current > previous) decreasing = false;
+				else if (current < previous) increasing = false;
 
-		return sum + Number(twoDigitNumber);
-	}, 0);
+				if (!increasing && !decreasing) return false;
+			}
 
-	console.log(totalSum);
+			return true;
+		});
+	});
+
+	console.log(safeReports.length);
 
 	console.timeEnd("partTwo");
 }

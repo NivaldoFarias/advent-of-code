@@ -14,12 +14,13 @@ export default {
 	singleAttributePerLine: true,
 	overrides: [
 		{
-			files: [ "*.d.ts", "*.json" ],
-			excludeFiles: [ "package.json", "package-lock.json" ],
+			files: ["*.d.ts", "*.json"],
+			excludeFiles: ["package.json", "package-lock.json"],
 			options: {
 				tabWidth: 4,
 				useTabs: false,
 			},
 		},
 	],
+	plugins: ["prettier-plugin-jsdoc"],
 };

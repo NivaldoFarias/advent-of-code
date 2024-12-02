@@ -1,12 +1,10 @@
 import Bun from "bun";
 
-const input = await Bun.file(`${import.meta.dir}/input.txt`).text();
-
-void solve(input);
+void solve(await Bun.file(`${import.meta.dir}/input.txt`).text());
 
 function solve(input: string) {
-	partOne(input);
-	partTwo(input);
+	void partOne(input);
+	void partTwo(input);
 }
 
 function partOne(input: string) {

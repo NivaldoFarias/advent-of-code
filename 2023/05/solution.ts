@@ -64,7 +64,7 @@ function partOne() {
 
 			mappedValue = minRangeToMap
 				? mappedValue -
-				  (Number(minRangeToMap["sourceRangeStart"]) -
+					(Number(minRangeToMap["sourceRangeStart"]) -
 						Number(minRangeToMap["destinationRangeStart"]))
 				: mappedValue;
 		}

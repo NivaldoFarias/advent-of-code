@@ -11,7 +11,10 @@
 .env
 .env*.local
 !.env.example
+
+# local user files
 .dotfiles
+.config
 
 # Build results
 dist/

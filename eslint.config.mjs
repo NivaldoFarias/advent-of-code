@@ -18,9 +18,6 @@ export default tseslint.config(
 			},
 		},
 		rules: {
-			// eslint rules
-			"prettier/prettier": "off",
-
 			...eslint.configs.recommended.rules,
 
 			// typescript-eslint rules
